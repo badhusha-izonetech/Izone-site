@@ -117,7 +117,7 @@ const WhatsappMarketing = () => {
                 <p className="text-muted-foreground max-w-xl mx-auto mb-8">
                   Transform your marketing with WhatsApp campaigns that deliver results.
                 </p>
-                <Link to="/contact">
+                <Link to="/get-started">
                   <Button size="lg" className="rounded-full px-8">
                     Get Started
                     <ArrowRight className="ml-2 w-4 h-4" />

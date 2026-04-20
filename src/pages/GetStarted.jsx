@@ -78,12 +78,14 @@ const GetStarted = () => {
   const { addServiceRequest } = useAdmin();
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedWork, setSelectedWork] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', company: '', projectDetails: '' });
 
   const selected = services.find((s) => s.id === selectedService);
 
   const handleServiceClick = (id) => {
     setSelectedService(id);
+    setSelectedWork(null);
     setStep(2);
   };
 
@@ -93,9 +95,7 @@ const GetStarted = () => {
       selectedServices: [selected?.label],
     });
     toast({ title: 'Request Submitted!', description: 'Our team will contact you within 24 hours.' });
-    setStep(1);
-    setSelectedService(null);
-    setFormData({ name: '', email: '', phone: '', company: '', projectDetails: '' });
+    setStep(4);
   };
 
   const canSubmit = formData.name && formData.email && formData.projectDetails;
@@ -105,7 +105,7 @@ const GetStarted = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="pt-32 pb-12 relative overflow-hidden">
+      <section className="pt-40 pb-20 relative overflow-hidden min-h-[100vh] flex items-center">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="container-custom relative z-10 text-center max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -195,37 +195,68 @@ const GetStarted = () => {
                   </div>
 
                   <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-10">
-                    {selected.works.map((work, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="glass-card overflow-hidden rounded-xl group"
-                      >
-                        <div className="overflow-hidden h-40">
-                          <img
-                            src={work.image}
-                            alt={work.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <p className="font-semibold text-sm mb-2">{work.title}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {work.tags.map((tag) => (
-                              <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{tag}</span>
-                            ))}
+                    {selected.works.map((work, i) => {
+                      const isSelected = selectedWork === i;
+                      return (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}
+                          onClick={() => setSelectedWork(isSelected ? null : i)}
+                          className={`glass-card overflow-hidden rounded-xl cursor-pointer transition-all relative ${
+                            isSelected
+                              ? 'border-primary ring-2 ring-primary/40 scale-[1.02]'
+                              : 'hover:border-primary/40 hover:scale-[1.01]'
+                          }`}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-md">
+                              <Check className="w-3.5 h-3.5 text-white" />
+                            </div>
+                          )}
+                          <div className="overflow-hidden h-40">
+                            <img
+                              src={work.image}
+                              alt={work.title}
+                              className={`w-full h-full object-cover transition-transform duration-300 ${
+                                isSelected ? 'scale-105' : 'group-hover:scale-105'
+                              }`}
+                            />
                           </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                          <div className={`p-4 transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
+                            <p className={`font-semibold text-sm mb-2 ${isSelected ? 'text-primary' : ''}`}>{work.title}</p>
+                            <div className="flex flex-wrap gap-1">
+                              {work.tags.map((tag) => (
+                                <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
 
                   <div className="flex justify-between">
                     <Button size="lg" variant="outline" onClick={() => setStep(1)}>Back</Button>
                     <Button size="lg" onClick={() => setStep(3)} className="glow-border hover-glow">
                       Continue <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── Step 4: Success ── */}
+              {step === 4 && (
+                <motion.div key="step4" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
+                  <div className="text-center py-16">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                      <Check className="w-8 h-8 text-primary" />
+                    </div>
+                    <h2 className="font-display text-2xl md:text-3xl font-bold mb-3">Request Submitted!</h2>
+                    <p className="text-muted-foreground mb-8">Our team will contact you within 24 hours.</p>
+                    <Button size="lg" onClick={() => { setStep(1); setSelectedService(null); setFormData({ name: '', email: '', phone: '', company: '', projectDetails: '' }); }}>
+                      Start Another Request <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
                 </motion.div>
@@ -239,32 +270,31 @@ const GetStarted = () => {
                     <p className="text-muted-foreground">We'll get in touch within 24 hours</p>
                   </div>
 
-                  <div className="glass-card p-6 md:p-8 mb-8">
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="glass-card p-6 md:p-8 mb-6 max-w-lg mx-auto">
+                    <div className="grid gap-4 mb-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">Full Name *</label>
-                        <Input placeholder="John Doe" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} />
+                        <label className="block text-xs font-medium mb-1">Full Name *</label>
+                        <Input className="h-10 text-sm" placeholder="John Doe" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">Email Address *</label>
-                        <Input type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))} />
-                      </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Phone Number</label>
-                        <Input placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} />
+                        <label className="block text-xs font-medium mb-1">Email Address *</label>
+                        <Input className="h-10 text-sm" type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))} />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-2">Company Name</label>
-                        <Input placeholder="Your Company" value={formData.company} onChange={(e) => setFormData((p) => ({ ...p, company: e.target.value }))} />
+                        <label className="block text-xs font-medium mb-1">Phone Number</label>
+                        <Input className="h-10 text-sm" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Company Name</label>
+                        <Input className="h-10 text-sm" placeholder="Your Company" value={formData.company} onChange={(e) => setFormData((p) => ({ ...p, company: e.target.value }))} />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Project Details *</label>
+                      <label className="block text-xs font-medium mb-1">Project Details *</label>
                       <Textarea
-                        placeholder="Tell us about your project, goals, and any specific requirements..."
-                        rows={5}
+                        className="text-sm"
+                        placeholder="Tell us about your project..."
+                        rows={6}
                         value={formData.projectDetails}
                         onChange={(e) => setFormData((p) => ({ ...p, projectDetails: e.target.value }))}
                       />

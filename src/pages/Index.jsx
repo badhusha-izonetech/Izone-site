@@ -518,7 +518,7 @@ export default function Index() {
       hideScrollToTopOnMobile={false}
     >
       {/* Hero */}
-      <section ref={heroRef} className="hero-section relative isolate overflow-hidden text-white">
+      <section ref={heroRef} className="hero-section relative overflow-hidden text-white">
         <AnimatePresence mode="sync" initial={false}>
           <motion.img
             key={HERO_IMAGES[activeHeroImage]}
@@ -529,13 +529,13 @@ export default function Index() {
             animate={{ opacity: 1, scale: 1.01 }}
             exit={{ opacity: 0, scale: 1 }}
             transition={{ duration: 1.35, ease: [0.22, 1, 0.36, 1] }}
-            className="hero-bg-img"
+            className="hero-bg-img pointer-events-none"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 hero-image-shade" />
-        <div className="absolute inset-0 hero-tech-overlay" />
+        <div className="absolute inset-0 hero-image-shade pointer-events-none" />
+        <div className="absolute inset-0 hero-tech-overlay pointer-events-none" />
 
-        <div className="container-custom relative">
+        <div className="container-custom relative z-10">
           <motion.div variants={heroContainer} initial="hidden" animate="visible" className="home-hero-content mx-auto max-w-4xl text-center">
                 <motion.h1 variants={heroItem} className="home-hero-title mt-7 text-balance text-[2.35rem] font-semibold leading-[1.05] text-white sm:text-[3.5rem] lg:text-[3.15rem] xl:text-[3.35rem]">
                   <span className="min-[511px]:whitespace-nowrap">

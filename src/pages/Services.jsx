@@ -100,7 +100,7 @@ const Services = () => {
 
           <div className="mt-14 text-center">
             <Link
-              to="/contact"
+              to="/get-started"
               className="inline-flex items-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Get Started

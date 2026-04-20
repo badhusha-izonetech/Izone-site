@@ -256,7 +256,7 @@ export function Navbar({ logoVisible = true, hideOnMobile = false, hide = false 
               </div>
 
               {/* Links */}
-              <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-1">
+              <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-1 pb-4">
                 {navLinks.map((link, i) => (
                   <motion.div
                     key={link.path}

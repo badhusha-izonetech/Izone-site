@@ -208,9 +208,12 @@ const About = () => {
     const container = timelineRef.current;
     if (!container) return;
     const nextIndex = Math.max(0, Math.min(index, milestones.length - 1));
-    const slide = container.children[nextIndex];
+    const slides = container.querySelectorAll("[data-timeline-item]");
+    const slide = slides[nextIndex];
     if (!(slide instanceof HTMLElement)) return;
-    container.scrollTo({ left: slide.offsetLeft, behavior: "smooth" });
+    const targetLeft = slide.offsetLeft - (container.clientWidth - slide.offsetWidth) / 2;
+    const maxLeft = container.scrollWidth - container.clientWidth;
+    container.scrollTo({ left: Math.max(0, Math.min(targetLeft, maxLeft)), behavior: "smooth" });
     setActiveTimelineIndex(nextIndex);
   }, []);
 
@@ -226,7 +229,7 @@ const About = () => {
     const container = timelineRef.current;
     if (!container) return;
     const center = container.scrollLeft + container.clientWidth / 2;
-    const children = Array.from(container.children);
+    const children = Array.from(container.querySelectorAll("[data-timeline-item]"));
     let closestIndex = 0;
     let closestDistance = Number.POSITIVE_INFINITY;
 
@@ -594,7 +597,7 @@ const About = () => {
               <div className="relative inline-flex items-start min-w-max px-8 pt-2">
 
                 {/* horizontal spine line — sits between card bottom and circle top */}
-                <div className="absolute left-0 right-0 h-0.5 bg-primary/30" style={{ top: "calc(10rem + 1.5rem + 0.5rem)" }} />
+                <div className="absolute left-0 right-0 h-0.5 bg-primary/30" style={{ top: "calc(11rem + 1.5rem + 0.5rem)" }} />
 
                 {milestones.map((milestone, index) => {
                   const phaseColors = [
@@ -611,14 +614,15 @@ const About = () => {
                   return (
                     <motion.div
                       key={milestone.year}
+                      data-timeline-item
                       initial={{ opacity: 0, y: 20 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: false }}
                       transition={{ duration: 0.5, delay: index * 0.07 }}
-                      className="relative flex flex-col items-center w-48 mx-4"
+                      className="relative flex flex-col items-center w-56 mx-4"
                     >
                       {/* top card — fixed height so all cards align */}
-                      <div className={`w-full h-40 rounded-2xl ${c.bg} p-4 shadow-md flex flex-col justify-start`}>
+                      <div className={`w-full h-44 rounded-2xl ${c.bg} p-5 shadow-md flex flex-col justify-start`}>
                         <p className="text-[0.6rem] font-bold uppercase tracking-widest text-white/70 mb-1">{milestone.label}</p>
                         <p className="text-[1rem] font-bold leading-tight text-white">{milestone.title}</p>
                         <p className="text-[0.7rem] font-semibold text-white/80 mt-0.5">{milestone.year}</p>

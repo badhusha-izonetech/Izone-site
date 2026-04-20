@@ -94,7 +94,7 @@ const Portfolio = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-32 pb-16 relative overflow-hidden">
+      <section className="pt-40 pb-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
         <div className="container-custom relative z-10">
           <motion.div

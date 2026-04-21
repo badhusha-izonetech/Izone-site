@@ -28,6 +28,13 @@ const DetailRow = ({ icon: Icon, label, value }) => (
   </div>
 );
 
+const getDocumentKind = (application) => {
+  const extension = application.resumeName?.split(".").pop()?.toLowerCase();
+  if (extension === "pdf" || application.resumeType === "application/pdf") return "pdf";
+  if (extension === "doc" || extension === "docx") return "word";
+  return application.resume ? "file" : "none";
+};
+
 export default function JobRoleManagement() {
   const { jobRoles, jobRoleOps, jobApplications, jobAppOps, markRead } = useAdmin();
   const [tab, setTab] = useState("roles");
@@ -101,6 +108,7 @@ export default function JobRoleManagement() {
     },
     { key: "email", label: "Email" },
     { key: "phone", label: "Phone" },
+    { key: "address", label: "Address" },
     { key: "jobRole", label: "Applied For" },
     { key: "date", label: "Applied On" },
     {
@@ -203,11 +211,21 @@ export default function JobRoleManagement() {
                   <DetailRow icon={User} label="Full Name" value={viewModal.name} />
                   <DetailRow icon={Phone} label="Phone" value={viewModal.phone} />
                   <DetailRow icon={Mail} label="Email" value={viewModal.email} />
+                  <DetailRow icon={MapPin} label="Address" value={viewModal.address} />
                   <DetailRow icon={Briefcase} label="Applied For" value={viewModal.jobRole} />
                   <DetailRow icon={GraduationCap} label="Qualification" value={viewModal.qualification} />
                   <DetailRow icon={Clock} label="Experience" value={viewModal.experience} />
                   <DetailRow icon={MapPin} label="Location" value={viewModal.location} />
                   <DetailRow icon={Activity} label="Applied On" value={viewModal.date} />
+                  <DetailRow
+                    icon={FileText}
+                    label="Resume"
+                    value={
+                      viewModal.resumeName
+                        ? `${viewModal.resumeName}${viewModal.attachmentStatus ? ` (${viewModal.attachmentStatus})` : ""}`
+                        : viewModal.attachmentStatus || "Not uploaded"
+                    }
+                  />
                 </div>
                 {viewModal.message && (
                   <div className="mt-1">
@@ -227,15 +245,35 @@ export default function JobRoleManagement() {
                   )}
                 </div>
                 {viewModal.resume ? (
-                  viewModal.resume.startsWith("data:image") ? (
-                    <img src={viewModal.resume} alt="document" className="max-w-full rounded-lg" />
-                  ) : (
+                  getDocumentKind(viewModal) === "pdf" ? (
                     <embed
                       src={`${viewModal.resume}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
                       type="application/pdf"
                       className="w-full rounded-lg border border-border"
                       style={{ height: "60vh" }}
                     />
+                  ) : (
+                    <div className="rounded-lg border border-border bg-muted/20 p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <FileText size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground">Word document attached</p>
+                          <p className="mt-1 break-words text-sm text-muted-foreground">{viewModal.resumeName || "Document file"}</p>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            PDF files preview inline here. DOC and DOCX files are available to download from the admin page.
+                          </p>
+                          <a
+                            href={viewModal.resume}
+                            download={viewModal.resumeName || "document"}
+                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                          >
+                            <Download size={14} /> Download Document
+                          </a>
+                        </div>
+                      </div>
+                    </div>
                   )
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2 bg-muted/20 rounded-lg">
@@ -259,7 +297,5 @@ export default function JobRoleManagement() {
     </AdminLayout>
   );
 }
-
-
 
 

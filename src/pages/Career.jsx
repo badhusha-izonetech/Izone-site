@@ -24,9 +24,11 @@ const benefits = [
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
-const emptyJob = { name: "", email: "", phone: "", qualification: "", experience: "", location: "", message: "", resume: "", resumeName: "" };
-const emptyIntern = { name: "", email: "", phone: "", address: "", role: "", duration: "", qualification: "", skills: "", message: "", resume: "", resumeName: "" };
+const emptyJob = { name: "", email: "", phone: "", address: "", qualification: "", experience: "", location: "", message: "", resume: "", resumeName: "", resumeType: "" };
+const emptyIntern = { name: "", email: "", phone: "", address: "", role: "", duration: "", qualification: "", skills: "", message: "", resume: "", resumeName: "", resumeType: "" };
 const CAREER_HERO_IMAGE = "/assests/career.png";
+const ALLOWED_RESUME_EXTENSIONS = ["pdf", "doc", "docx"];
+const ALLOWED_RESUME_MESSAGE = "Only PDF, DOC, and DOCX files are allowed.";
 
 function Field({ label, error, children }) {
   return (
@@ -159,11 +161,28 @@ export default function Career() {
   const setJ = (k) => (e) => setJobForm((f) => ({ ...f, [k]: e.target.value }));
   const setI = (k) => (e) => setInternForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const handleFile = (setter) => (e) => {
+  const handleFile = (setter, setErrors) => (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!ALLOWED_RESUME_EXTENSIONS.includes(ext)) {
+      setter((f) => ({ ...f, resume: "", resumeName: "", resumeType: "" }));
+      setErrors((current) => ({ ...current, resume: ALLOWED_RESUME_MESSAGE }));
+      e.target.value = "";
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = (ev) => setter((f) => ({ ...f, resume: ev.target.result, resumeName: file.name }));
+    reader.onload = (ev) => {
+      setter((f) => ({
+        ...f,
+        resume: ev.target.result,
+        resumeName: file.name,
+        resumeType: file.type || ext,
+      }));
+      setErrors((current) => ({ ...current, resume: undefined }));
+    };
     reader.readAsDataURL(file);
   };
 
@@ -173,8 +192,10 @@ export default function Career() {
     if (!jobForm.email.trim()) e.email = "Required";
     else if (!/\S+@\S+\.\S+/.test(jobForm.email)) e.email = "Invalid email";
     if (!jobForm.phone.trim()) e.phone = "Required";
+    if (!jobForm.address.trim()) e.address = "Required";
     if (!jobForm.qualification.trim()) e.qualification = "Required";
     if (!jobForm.experience.trim()) e.experience = "Required";
+    if (!jobForm.resume) e.resume = "Resume is required";
     setJobErrors(e);
     return !Object.keys(e).length;
   };
@@ -188,6 +209,7 @@ export default function Career() {
     if (!internForm.address.trim()) e.address = "Required";
     if (!internForm.role.trim()) e.role = "Required";
     if (!internForm.qualification.trim()) e.qualification = "Required";
+    if (!internForm.resume) e.resume = "Resume is required";
     setInternErrors(e);
     return !Object.keys(e).length;
   };
@@ -415,17 +437,20 @@ export default function Career() {
           <Field label="Experience *" error={jobErrors.experience}>
             <Input placeholder="e.g. 2 years in React development" value={jobForm.experience} onChange={setJ("experience")} className="rounded-full border-gray-200 bg-white/25 text-gray-900 placeholder:text-gray-400" />
           </Field>
+          <Field label="Address *" error={jobErrors.address}>
+            <Input placeholder="Your full address" value={jobForm.address} onChange={setJ("address")} className="rounded-full border-gray-200 bg-white/25 text-gray-900 placeholder:text-gray-400" />
+          </Field>
           <Field label="Current Location">
             <Input placeholder="e.g. Chennai, Tamil Nadu" value={jobForm.location} onChange={setJ("location")} className="rounded-full border-gray-200 bg-white/25 text-gray-900 placeholder:text-gray-400" />
           </Field>
           <Field label="Cover Letter">
             <Textarea placeholder="Tell us why you're a great fit..." rows={3} value={jobForm.message} onChange={setJ("message")} className="rounded-xl border-gray-200 bg-white/25 text-gray-900 placeholder:text-gray-400 resize-none" />
           </Field>
-          <Field label="Resume / Document">
+          <Field label="Resume / Document *" error={jobErrors.resume}>
             <label className="flex items-center gap-3 px-4 py-2.5 rounded-full border border-dashed border-gray-300 bg-white/25 cursor-pointer hover:border-primary/50 transition-colors">
               <Upload size={15} className="text-gray-400 shrink-0" />
-              <span className="text-sm text-gray-400 truncate">{jobForm.resumeName || "Upload resume (PDF, DOC)"}</span>
-              <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFile(setJobForm)} />
+              <span className="text-sm text-gray-400 truncate">{jobForm.resumeName || "Upload resume (PDF, DOC, DOCX)"}</span>
+              <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="hidden" onChange={handleFile(setJobForm, setJobErrors)} />
             </label>
           </Field>
         </ApplyModal>
@@ -474,11 +499,11 @@ export default function Career() {
           <Field label="Message">
             <Textarea placeholder="Tell us about yourself..." rows={3} value={internForm.message} onChange={setI("message")} className="rounded-xl border-gray-200 bg-white/25 text-gray-900 placeholder:text-gray-400 resize-none" />
           </Field>
-          <Field label="Resume / Document">
+          <Field label="Resume / Document *" error={internErrors.resume}>
             <label className="flex items-center gap-3 px-4 py-2.5 rounded-full border border-dashed border-gray-300 bg-white/25 cursor-pointer hover:border-primary/50 transition-colors">
               <Upload size={15} className="text-gray-400 shrink-0" />
-              <span className="text-sm text-gray-400 truncate">{internForm.resumeName || "Upload resume (PDF, DOC)"}</span>
-              <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleFile(setInternForm)} />
+              <span className="text-sm text-gray-400 truncate">{internForm.resumeName || "Upload resume (PDF, DOC, DOCX)"}</span>
+              <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="hidden" onChange={handleFile(setInternForm, setInternErrors)} />
             </label>
           </Field>
         </ApplyModal>
@@ -486,11 +511,6 @@ export default function Career() {
     </Layout>
   );
 }
-
-
-
-
-
 
 
 

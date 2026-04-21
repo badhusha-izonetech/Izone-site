@@ -199,7 +199,7 @@ export function Navbar({ logoVisible = true, hideOnMobile = false, hide = false 
           </div>
           <div className="lg:hidden flex items-center">
             <Link to="/" className="flex items-center shrink-0 overflow-visible">
-              <img src="/hero/logo.png" alt="Izone" className="w-auto object-contain" style={{ height: "64px" }} />
+              <img src="/hero/logo.png" alt="Izone" className="h-[56px] w-auto object-contain min-[431px]:h-16" />
             </Link>
           </div>
 
@@ -207,7 +207,7 @@ export function Navbar({ logoVisible = true, hideOnMobile = false, hide = false 
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-10 h-10 flex items-center justify-center rounded-lg bg-muted/60 text-foreground hover:bg-muted transition-colors"
+              className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/60 text-foreground transition-colors hover:bg-muted max-[430px]:h-11 max-[430px]:w-11"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait" initial={false}>

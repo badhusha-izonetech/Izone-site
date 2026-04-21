@@ -196,8 +196,8 @@ function TestimonialBubbleCarousel({ items }) {
   }, [items.length]);
 
   return (
-    <div className="relative">
-      <div className="flex items-center justify-between gap-3 mb-6">
+    <div className="home-testimonials relative">
+      <div className="home-testimonials-head mb-6 flex items-center justify-between gap-3">
         <div>
           <span className="section-label">Testimonials</span>
           <h2 className="section-title">What Our Clients Say</h2>
@@ -228,7 +228,7 @@ function TestimonialBubbleCarousel({ items }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -14, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="relative rounded-3xl border border-border/70 bg-card/90 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.10)] p-6 sm:p-8"
+            className="home-testimonial-card relative rounded-3xl border border-border/70 bg-card/90 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.10)] backdrop-blur-2xl sm:p-8"
           >
             <div className="absolute -bottom-2 left-10 h-4 w-4 bg-card rotate-45 border-b border-r border-border/70" />
             {/* Stars */}
@@ -273,7 +273,7 @@ function TestimonialBubbleCarousel({ items }) {
 
 function PortfolioMasonry({ items }) {
   return (
-    <section className="section-padding">
+    <section className="section-padding home-portfolio-section">
       <div className="container-custom">
         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: false }} className="mb-10 text-center">
           <span className="section-label">Portfolio</span>
@@ -281,7 +281,7 @@ function PortfolioMasonry({ items }) {
           <p className="section-subtitle">Hover each project card to reveal the portfolio details with a stronger animated presentation.</p>
         </motion.div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="home-portfolio-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((p, index) => (
             <motion.div
               key={p.title}
@@ -578,14 +578,14 @@ export default function Index() {
                   className="home-hero-scroll mt-12 flex items-center justify-center gap-3 text-xs font-medium uppercase tracking-[0.24em] text-white/50"
                 >
                   <span className="h-px w-12 bg-white/18" />
-                  Scroll
+                  
                   <motion.span
                     aria-hidden="true"
                     animate={prefersReducedMotion ? undefined : { y: [0, 6, 0] }}
                     transition={prefersReducedMotion ? undefined : { duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                     className="inline-block text-sm"
                   >
-                    ↓
+                    
                   </motion.span>
                 </motion.div>
           </motion.div>
@@ -602,7 +602,7 @@ export default function Index() {
           </motion.div>
 
           <div className="px-1 py-4 sm:px-0 sm:py-6">
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="home-services-grid grid gap-5 sm:grid-cols-2">
               {services.map((svc, i) => (
                 <ServiceShowcaseCard
                   key={svc.title}
@@ -670,7 +670,7 @@ export default function Index() {
               ))}
             </div>
 
-            <motion.div variants={aboutItem} className="mt-6 flex flex-wrap items-center gap-3">
+            <motion.div variants={aboutItem} className="home-about-actions mt-6 flex flex-wrap items-center gap-3">
               <Button asChild className="rounded-[8px] px-6">
                 <Link to="/about">
                   Learn More <ArrowRight />
@@ -742,9 +742,9 @@ export default function Index() {
       </section>
 
       {/* Why Choose Us (Timeline) */}
-      <section className="section-padding">
+      <section className="section-padding home-timeline-section">
         <div className="container-custom">
-          <div className="px-1 py-12 sm:px-0 lg:py-16">
+          <div className="home-timeline-shell px-1 py-12 sm:px-0 lg:py-16">
             <img
               src="/backgrounds/hero image 2.png"
               alt=""
@@ -759,7 +759,7 @@ export default function Index() {
               <p className="section-subtitle">Reframed as a centered visual timeline, closer to the layout in your reference image.</p>
             </motion.div>
 
-            <div className="relative z-10">
+            <div className="home-timeline relative z-10">
               <div className="timeline-process-line left-6 lg:left-1/2 lg:-translate-x-1/2" />
               <div className="space-y-10 lg:space-y-2">
                 {timeline.map((t, idx) => (
@@ -769,7 +769,7 @@ export default function Index() {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: false, margin: "-80px" }}
-                    className="relative grid min-h-[10rem] items-center lg:grid-cols-2"
+                    className="home-timeline-item relative grid min-h-[10rem] items-center lg:grid-cols-2"
                   >
                     <div
                       className={`timeline-process-card pl-16 lg:pl-0 ${
@@ -779,10 +779,10 @@ export default function Index() {
                       <p className="timeline-process-step">
                         Step {String(idx + 1).padStart(2, "0")}
                       </p>
-                      <h3 className="mt-2 text-3xl font-bold tracking-tight text-foreground/90">
+                      <h3 className="home-timeline-title mt-2 text-3xl font-bold tracking-tight text-foreground/90">
                         {t.title}
                       </h3>
-                      <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
+                      <p className="home-timeline-copy mt-3 text-lg leading-relaxed text-muted-foreground">
                         {t.description}
                       </p>
                     </div>
@@ -809,18 +809,18 @@ export default function Index() {
       <PortfolioMasonry items={projects} />
 
       {/* CTA */}
-      <section className="section-padding">
+      <section className="section-padding home-cta-section">
         <div className="container-custom">
-          <div className="rounded-3xl border border-border/70 bg-gradient-to-r from-primary/14 via-accent/12 to-secondary/12 p-8 sm:p-10 shadow-[0_18px_70px_rgba(0,0,0,0.10)]">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-              <div>
+          <div className="home-cta-panel rounded-3xl border border-border/70 bg-gradient-to-r from-primary/14 via-accent/12 to-secondary/12 p-8 shadow-[0_18px_70px_rgba(0,0,0,0.10)] sm:p-10">
+            <div className="home-cta-row flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+              <div className="home-cta-copy">
                 <span className="section-label">Ready to Start?</span>
                 <h2 className="section-title mt-2">Ready to Start Your Project?</h2>
                 <p className="mt-3 text-muted-foreground max-w-2xl">
                   Tell us what you’re building — we’ll help you plan, design, and launch with confidence.
                 </p>
               </div>
-              <Button asChild size="lg" className="rounded-full px-8">
+              <Button asChild size="lg" className="home-cta-action rounded-full px-8">
                 <Link to="/contact">Get in Touch</Link>
               </Button>
             </div>
@@ -830,5 +830,3 @@ export default function Index() {
     </Layout>
   );
 }
-
-

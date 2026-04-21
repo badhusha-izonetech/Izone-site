@@ -231,16 +231,15 @@ export function AdminLayout({ children }) {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 flex h-full w-72 flex-col border-r border-border/70 bg-card/95 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-out lg:translate-x-0",
+          "fixed left-0 top-0 z-30 flex h-[100svh] max-h-[100svh] w-72 flex-col overflow-hidden border-r border-border/70 bg-card/95 shadow-2xl backdrop-blur-xl transition-transform duration-300 ease-out lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="border-b border-border/70 p-5">
           <div className="flex items-center justify-between gap-3">
-            <div>
-              <span className="font-display text-xl font-bold gradient-text">iZone Admin</span>
-              <p className="mt-1 text-xs text-muted-foreground">Responsive operations hub</p>
-            </div>
+            <Link to="/" className="flex items-center">
+              <img src="/hero/logo.png" alt="Izone" className="h-12 w-auto origin-left scale-[1.45] object-contain" />
+            </Link>
             <button
               className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
               onClick={() => setOpen(false)}
@@ -251,7 +250,7 @@ export function AdminLayout({ children }) {
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+        <nav className="ios-scroll-panel flex-1 min-h-0 space-y-1 overflow-y-auto p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {navItems.map(({ label, icon: Icon, path }) => {
             const active = location.pathname === path;
 
@@ -303,10 +302,9 @@ export function AdminLayout({ children }) {
               >
                 <Menu size={20} />
               </button>
-              <div>
-                <span className="font-display text-base font-bold gradient-text sm:text-lg">iZone Admin</span>
-                <p className="hidden text-xs text-muted-foreground sm:block">Auto-updating content and lead activity</p>
-              </div>
+              <Link to="/" className="font-display text-base font-bold gradient-text sm:text-lg">
+                IZone Technologies
+              </Link>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">

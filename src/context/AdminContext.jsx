@@ -1,31 +1,49 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AdminContext = createContext(null);
 
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "izone@2024";
+const STORAGE_LIMIT_NOTE = "Resume file was omitted because browser storage space is limited.";
+
+const STORAGE_KEYS = {
+  auth: "admin_auth",
+  popups: "admin_popups",
+  testimonials: "admin_testimonials",
+  jobRoles: "admin_jobroles",
+  contacts: "admin_contacts",
+  interns: "admin_interns",
+  clients: "admin_clients",
+  internApplications: "admin_intern_apps",
+  jobApplications: "admin_job_apps",
+  teamMembers: "admin_team",
+  internRoles: "admin_intern_roles",
+  sitePhotos: "admin_site_photos",
+  readIds: "admin_read_ids",
+  serviceRequests: "admin_service_requests",
+};
 
 const load = (key, fallback) => {
   try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : fallback;
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
   } catch {
     return fallback;
   }
 };
 
-// Safe persist — silently skip if quota exceeded
 const persist = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    if (e.name === "QuotaExceededError") {
-      console.warn(`[AdminContext] localStorage quota exceeded for key "${key}". Skipping persist.`);
+    return true;
+  } catch (error) {
+    if (error.name === "QuotaExceededError") {
+      console.warn(`[AdminContext] localStorage quota exceeded for key "${key}".`);
     }
+    return false;
   }
 };
 
-// Compress image to max 800px wide, quality 0.7 before storing
 const compressImage = (dataUrl, maxW = 800, quality = 0.7) =>
   new Promise((resolve) => {
     const img = new Image();
@@ -41,44 +59,104 @@ const compressImage = (dataUrl, maxW = 800, quality = 0.7) =>
   });
 
 const makeCrud = (setter) => ({
-  add: (item) => setter((p) => [...p, { ...item, id: Date.now().toString() }]),
-  update: (id, item) => setter((p) => p.map((x) => (x.id === id ? { ...x, ...item } : x))),
-  remove: (id) => setter((p) => p.filter((x) => x.id !== id)),
+  add: (item) => setter((items) => [...items, { ...item, id: Date.now().toString() }]),
+  update: (id, item) => setter((items) => items.map((entry) => (entry.id === id ? { ...entry, ...item } : entry))),
+  remove: (id) => setter((items) => items.filter((entry) => entry.id !== id)),
 });
 
-export const AdminProvider = ({ children }) => {
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => load("admin_auth", false));
-  const [popups, setPopups] = useState(() => load("admin_popups", []));
-  const [testimonials, setTestimonials] = useState(() => load("admin_testimonials", []));
-  const [jobRoles, setJobRoles] = useState(() => load("admin_jobroles", []));
-  const [contacts, setContacts] = useState(() => load("admin_contacts", []));
-  const [interns, setInterns] = useState(() => load("admin_interns", []));
-  const [clients, setClients] = useState(() => load("admin_clients", []));
-  const [internApplications, setInternApplications] = useState(() => load("admin_intern_apps", []));
-  const [jobApplications, setJobApplications] = useState(() => load("admin_job_apps", []));
-  const [teamMembers, setTeamMembers] = useState(() => load("admin_team", []));
-  const [internRoles, setInternRoles] = useState(() => load("admin_intern_roles", []));
-  const [sitePhotos, setSitePhotos] = useState(() => load("admin_site_photos", []));
-  const [readIds, setReadIds] = useState(() => load("admin_read_ids", []));
-  const [serviceRequests, setServiceRequests] = useState(() => load("admin_service_requests", []));
+const stripStoredResume = (item) => {
+  if (!item?.resume) return item;
+  return {
+    ...item,
+    resume: "",
+    attachmentStatus: item.attachmentStatus || STORAGE_LIMIT_NOTE,
+  };
+};
 
-  useEffect(() => { persist("admin_popups", popups); }, [popups]);
-  useEffect(() => { persist("admin_testimonials", testimonials); }, [testimonials]);
-  useEffect(() => { persist("admin_jobroles", jobRoles); }, [jobRoles]);
-  useEffect(() => { persist("admin_contacts", contacts); }, [contacts]);
-  useEffect(() => { persist("admin_interns", interns); }, [interns]);
-  useEffect(() => { persist("admin_clients", clients); }, [clients]);
-  useEffect(() => { persist("admin_intern_apps", internApplications); }, [internApplications]);
-  useEffect(() => { persist("admin_job_apps", jobApplications); }, [jobApplications]);
-  useEffect(() => { persist("admin_team", teamMembers); }, [teamMembers]);
-  useEffect(() => { persist("admin_intern_roles", internRoles); }, [internRoles]);
-  useEffect(() => { persist("admin_site_photos", sitePhotos); }, [sitePhotos]);
-  useEffect(() => { persist("admin_read_ids", readIds); }, [readIds]);
-  useEffect(() => { persist("admin_service_requests", serviceRequests); }, [serviceRequests]);
+const compactApplicationsForStorage = (items) => {
+  let changed = false;
+  const compacted = items.map((item) => {
+    if (!item?.resume) return item;
+    changed = true;
+    return stripStoredResume(item);
+  });
+  return changed ? compacted : items;
+};
+
+export const AdminProvider = ({ children }) => {
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => load(STORAGE_KEYS.auth, false));
+  const [popups, setPopups] = useState(() => load(STORAGE_KEYS.popups, []));
+  const [testimonials, setTestimonials] = useState(() => load(STORAGE_KEYS.testimonials, []));
+  const [jobRoles, setJobRoles] = useState(() => load(STORAGE_KEYS.jobRoles, []));
+  const [contacts, setContacts] = useState(() => load(STORAGE_KEYS.contacts, []));
+  const [interns, setInterns] = useState(() => load(STORAGE_KEYS.interns, []));
+  const [clients, setClients] = useState(() => load(STORAGE_KEYS.clients, []));
+  const [internApplications, setInternApplications] = useState(() => load(STORAGE_KEYS.internApplications, []));
+  const [jobApplications, setJobApplications] = useState(() => load(STORAGE_KEYS.jobApplications, []));
+  const [teamMembers, setTeamMembers] = useState(() => load(STORAGE_KEYS.teamMembers, []));
+  const [internRoles, setInternRoles] = useState(() => load(STORAGE_KEYS.internRoles, []));
+  const [sitePhotos, setSitePhotos] = useState(() => load(STORAGE_KEYS.sitePhotos, []));
+  const [readIds, setReadIds] = useState(() => load(STORAGE_KEYS.readIds, []));
+  const [serviceRequests, setServiceRequests] = useState(() => load(STORAGE_KEYS.serviceRequests, []));
+
+  useEffect(() => { persist(STORAGE_KEYS.popups, popups); }, [popups]);
+  useEffect(() => { persist(STORAGE_KEYS.testimonials, testimonials); }, [testimonials]);
+  useEffect(() => { persist(STORAGE_KEYS.jobRoles, jobRoles); }, [jobRoles]);
+  useEffect(() => { persist(STORAGE_KEYS.contacts, contacts); }, [contacts]);
+  useEffect(() => { persist(STORAGE_KEYS.interns, interns); }, [interns]);
+  useEffect(() => { persist(STORAGE_KEYS.clients, clients); }, [clients]);
+  useEffect(() => { persist(STORAGE_KEYS.internApplications, internApplications); }, [internApplications]);
+  useEffect(() => { persist(STORAGE_KEYS.jobApplications, jobApplications); }, [jobApplications]);
+  useEffect(() => { persist(STORAGE_KEYS.teamMembers, teamMembers); }, [teamMembers]);
+  useEffect(() => { persist(STORAGE_KEYS.internRoles, internRoles); }, [internRoles]);
+  useEffect(() => { persist(STORAGE_KEYS.sitePhotos, sitePhotos); }, [sitePhotos]);
+  useEffect(() => { persist(STORAGE_KEYS.readIds, readIds); }, [readIds]);
+  useEffect(() => { persist(STORAGE_KEYS.serviceRequests, serviceRequests); }, [serviceRequests]);
+
+  useEffect(() => {
+    const bindings = {
+      [STORAGE_KEYS.auth]: { setter: setIsAdminLoggedIn, fallback: false },
+      [STORAGE_KEYS.popups]: { setter: setPopups, fallback: [] },
+      [STORAGE_KEYS.testimonials]: { setter: setTestimonials, fallback: [] },
+      [STORAGE_KEYS.jobRoles]: { setter: setJobRoles, fallback: [] },
+      [STORAGE_KEYS.contacts]: { setter: setContacts, fallback: [] },
+      [STORAGE_KEYS.interns]: { setter: setInterns, fallback: [] },
+      [STORAGE_KEYS.clients]: { setter: setClients, fallback: [] },
+      [STORAGE_KEYS.internApplications]: { setter: setInternApplications, fallback: [] },
+      [STORAGE_KEYS.jobApplications]: { setter: setJobApplications, fallback: [] },
+      [STORAGE_KEYS.teamMembers]: { setter: setTeamMembers, fallback: [] },
+      [STORAGE_KEYS.internRoles]: { setter: setInternRoles, fallback: [] },
+      [STORAGE_KEYS.sitePhotos]: { setter: setSitePhotos, fallback: [] },
+      [STORAGE_KEYS.readIds]: { setter: setReadIds, fallback: [] },
+      [STORAGE_KEYS.serviceRequests]: { setter: setServiceRequests, fallback: [] },
+    };
+
+    const syncFromStorage = (event) => {
+      if (event.storageArea !== window.localStorage || !event.key) return;
+      const binding = bindings[event.key];
+      if (!binding) return;
+      binding.setter(load(event.key, binding.fallback));
+    };
+
+    window.addEventListener("storage", syncFromStorage);
+    return () => window.removeEventListener("storage", syncFromStorage);
+  }, []);
+
+  const addPersistentApplication = (setter, storageKey, item) =>
+    setter((items) => {
+      const next = [...items, item];
+      if (persist(storageKey, next)) return next;
+
+      const compacted = compactApplicationsForStorage(next);
+      if (compacted !== next && persist(storageKey, compacted)) return compacted;
+
+      console.warn(`[AdminContext] Unable to persist "${storageKey}". Keeping the latest application in memory only.`);
+      return compacted;
+    });
 
   const adminLogin = (username, password) => {
     if (username === ADMIN_USER && password === ADMIN_PASS) {
-      persist("admin_auth", true);
+      persist(STORAGE_KEYS.auth, true);
       setIsAdminLoggedIn(true);
       return true;
     }
@@ -86,42 +164,43 @@ export const AdminProvider = ({ children }) => {
   };
 
   const adminLogout = () => {
-    persist("admin_auth", false);
+    persist(STORAGE_KEYS.auth, false);
     setIsAdminLoggedIn(false);
   };
 
   const addInternApplication = (item) =>
-    setInternApplications((p) => [
-      ...p,
-      { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), status: "Pending", createdAt: Date.now() },
-    ]);
+    addPersistentApplication(
+      setInternApplications,
+      STORAGE_KEYS.internApplications,
+      { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), status: "Pending", createdAt: Date.now() }
+    );
 
   const addJobApplication = (item) =>
-    setJobApplications((p) => [
-      ...p,
-      { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), status: "Pending", createdAt: Date.now() },
-    ]);
+    addPersistentApplication(
+      setJobApplications,
+      STORAGE_KEYS.jobApplications,
+      { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), status: "Pending", createdAt: Date.now() }
+    );
 
   const addContact = (item) =>
-    setContacts((p) => [
-      ...p,
+    setContacts((items) => [
+      ...items,
       { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), createdAt: Date.now() },
     ]);
 
   const addServiceRequest = (item) =>
-    setServiceRequests((p) => [
-      ...p,
+    setServiceRequests((items) => [
+      ...items,
       { ...item, id: Date.now().toString(), date: new Date().toLocaleDateString(), createdAt: Date.now(), status: "New" },
     ]);
 
-  const markRead = (id) => setReadIds((p) => p.includes(id) ? p : [...p, id]);
+  const markRead = (id) => setReadIds((items) => (items.includes(id) ? items : [...items, id]));
 
-  // Compress then add photo
   const addSitePhoto = async (file) => {
     const reader = new FileReader();
     reader.onload = async () => {
       const compressed = await compressImage(reader.result);
-      setSitePhotos((p) => [...p, { url: compressed, name: file.name, id: Date.now().toString() }]);
+      setSitePhotos((items) => [...items, { url: compressed, name: file.name, id: Date.now().toString() }]);
     };
     reader.readAsDataURL(file);
   };

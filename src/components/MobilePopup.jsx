@@ -51,9 +51,10 @@ export default function MobilePopup() {
     <AnimatePresence>
       {popup && (
         <div
-          className="pointer-events-none fixed left-1/2 top-1/2 z-[9998] w-[min(calc(100vw-2rem),22rem)] max-h-[calc(100vh-2rem)] -translate-x-1/2 -translate-y-1/2 min-[769px]:left-auto min-[769px]:top-auto min-[769px]:w-full min-[769px]:max-w-sm min-[769px]:translate-x-0 min-[769px]:translate-y-0 min-[769px]:bottom-4 min-[769px]:right-5"
+          className="pointer-events-none fixed inset-0 z-[9998] flex items-center justify-center px-4 py-4 min-[769px]:items-end min-[769px]:justify-end min-[769px]:px-5 min-[769px]:py-4"
         >
           <motion.div
+            className="w-full max-w-[22rem] min-[769px]:max-w-sm"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.98 }}

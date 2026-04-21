@@ -18,6 +18,13 @@ const DetailRow = ({ icon: Icon, label, value }) => (
   </div>
 );
 
+const getDocumentKind = (application) => {
+  const extension = application.resumeName?.split(".").pop()?.toLowerCase();
+  if (extension === "pdf" || application.resumeType === "application/pdf") return "pdf";
+  if (extension === "doc" || extension === "docx") return "word";
+  return application.resume ? "file" : "none";
+};
+
 export default function InternManagement() {
   const { internApplications, internAppOps, internRoles, internRoleOps, markRead } = useAdmin();
   const [tab, setTab] = useState("roles");
@@ -64,6 +71,17 @@ export default function InternManagement() {
     { key: "role", label: "Applied Role" },
     { key: "qualification", label: "Qualification" },
     { key: "date", label: "Applied On" },
+    {
+      key: "resume", label: "Document",
+      render: (v, row) => v ? (
+        <button
+          onClick={(e) => { e.stopPropagation(); openView(row); }}
+          className="flex items-center gap-1 text-primary text-xs hover:underline"
+        >
+          <FileText size={13} /> View
+        </button>
+      ) : <span className="text-muted-foreground text-xs">-</span>,
+    },
   ];
 
   return (
@@ -164,18 +182,63 @@ export default function InternManagement() {
               <DetailRow icon={Briefcase} label="Applied Role" value={viewModal.role} />
               <DetailRow icon={Clock} label="Duration" value={viewModal.duration} />
               <DetailRow icon={Activity} label="Applied On" value={viewModal.date} />
+              <DetailRow
+                icon={FileText}
+                label="Resume"
+                value={
+                  viewModal.resumeName
+                    ? `${viewModal.resumeName}${viewModal.attachmentStatus ? ` (${viewModal.attachmentStatus})` : ""}`
+                    : viewModal.attachmentStatus || "Not uploaded"
+                }
+              />
               {viewModal.message && <DetailRow icon={FileText} label="Message" value={viewModal.message} />}
-              {viewModal.resume && (
-                <div className="pt-3">
-                  <a
-                    href={viewModal.resume}
-                    download={viewModal.resumeName || "document"}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors w-fit"
-                  >
-                    <Download size={14} /> Download Document
-                  </a>
-                </div>
-              )}
+              <div className="pt-3">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Document</p>
+                {viewModal.resume ? (
+                  getDocumentKind(viewModal) === "pdf" ? (
+                    <div className="space-y-3">
+                      <embed
+                        src={`${viewModal.resume}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                        type="application/pdf"
+                        className="h-[55vh] w-full rounded-lg border border-border"
+                      />
+                      <a
+                        href={viewModal.resume}
+                        download={viewModal.resumeName || "document"}
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                      >
+                        <Download size={14} /> Download PDF
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-border bg-muted/20 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <FileText size={18} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-foreground">Word document attached</p>
+                          <p className="mt-1 break-words text-sm text-muted-foreground">{viewModal.resumeName || "Document file"}</p>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            PDF files preview inline here. DOC and DOCX files are available to download from the admin page.
+                          </p>
+                          <a
+                            href={viewModal.resume}
+                            download={viewModal.resumeName || "document"}
+                            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                          >
+                            <Download size={14} /> Download Document
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="rounded-lg bg-muted/20 px-4 py-6 text-sm text-muted-foreground">
+                    No document uploaded
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Footer */}

@@ -238,7 +238,7 @@ export function AdminLayout({ children }) {
         <div className="border-b border-border/70 p-5">
           <div className="flex items-center justify-between gap-3">
             <Link to="/" className="flex items-center">
-              <img src="/hero/logo.png" alt="Izone" className="h-12 w-auto origin-left scale-[1.45] object-contain" />
+              <img src="/hero/logo.png" alt="Izone" className="h-18 w-auto origin-left scale-[1.7] object-contain" />
             </Link>
             <button
               className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"

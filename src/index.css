@@ -2066,6 +2066,13 @@
   }
 
   @media (max-width: 430px) {
+    .contact-hero {
+      min-height: auto;
+      align-items: flex-start;
+      padding-top: 6.25rem;
+      padding-bottom: 3.5rem;
+    }
+
     .container-custom {
       padding-left: 1rem;
       padding-right: 1rem;

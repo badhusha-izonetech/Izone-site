@@ -88,36 +88,42 @@ const milestones = [
     description:
       "Izone Technologies was born with a vision to transform digital experiences.",
     label: "Launch Phase",
+    icon: Sparkles,
   },
   {
     year: "2016",
     title: "First Major Client",
     description: "Partnered with Fortune 500 company for enterprise solution.",
     label: "Trust Built",
+    icon: Target,
   },
   {
     year: "2018",
     title: "Team Expansion",
     description: "Grew to 25+ team members across multiple countries.",
     label: "Team Scale",
+    icon: Users,
   },
   {
     year: "2020",
     title: "Global Reach",
     description: "Expanded services to clients in 15+ countries worldwide.",
     label: "Worldwide",
+    icon: Globe2,
   },
   {
     year: "2022",
     title: "Industry Award",
     description: "Recognized as Top Web Development Agency of the Year.",
     label: "Recognition",
+    icon: Award,
   },
   {
     year: "2024",
     title: "Innovation Hub",
     description: "Launched R&D division for emerging technologies.",
     label: "Future Ready",
+    icon: Lightbulb,
   },
 ];
 
@@ -609,7 +615,7 @@ const About = () => {
                     { bg: "bg-primary/70",      text: "text-white", dot: "bg-primary/70",      ring: "ring-primary/35",    circle: "bg-primary/70" },
                   ];
                   const c = phaseColors[index % phaseColors.length];
-                  const timelineImage = orderedPhotos.length > 0 ? orderedPhotos[index % orderedPhotos.length] : null;
+                  const MilestoneIcon = milestone.icon;
 
                   return (
                     <motion.div
@@ -640,13 +646,9 @@ const About = () => {
 
                       {/* circular image / fallback */}
                       <div className={`w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-lg ring-2 ${c.ring} shrink-0`}>
-                        {timelineImage ? (
-                          <img src={timelineImage.url} alt={milestone.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className={`w-full h-full ${c.circle} flex items-center justify-center`}>
-                            <span className="text-xl font-bold text-white">{milestone.year.slice(2)}</span>
-                          </div>
-                        )}
+                        <div className={`w-full h-full ${c.circle} flex items-center justify-center`}>
+                          <MilestoneIcon size={30} className="text-white" aria-hidden="true" />
+                        </div>
                       </div>
                     </motion.div>
                   );
